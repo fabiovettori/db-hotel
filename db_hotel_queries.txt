@@ -8,10 +8,13 @@
 -> SELECT * FROM `ospiti` WHERE TIMESTAMPDIFF(YEAR,`date_of_birth`,CURRENT_DATE())
 
 4) Seleziona tutti gli ospiti il cui nome inizia con la D:
-SELECT * FROM `ospiti` WHERE `name` like 'D%'
+-> SELECT * FROM `ospiti` WHERE `name` like 'D%'
 
 5) Calcola il totale degli ordini accepted
-SELECT * FROM `pagamenti` WHERE `status` = 'accepted'
+->  SELECT * FROM `pagamenti` WHERE `status` = 'accepted'
 
 6) Qual è il prezzo massimo pagato?
-SELECT MAX(`price`) FROM pagamenti
+->  SELECT MAX(`price`) FROM pagamenti
+
+7) Seleziona gli ospiti riconosciuti con patente e nati nel 1975
+->  SELECT * FROM `ospiti` WHERE `document_type`= 'CI' AND YEAR(`date_of_birth`) = 1977
