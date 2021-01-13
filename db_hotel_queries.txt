@@ -9,3 +9,6 @@
 
 4) Seleziona tutti gli ospiti il cui nome inizia con la D:
 SELECT * FROM `ospiti` WHERE `name` like 'D%'
+
+5) Calcola il totale degli ordini accepted
+SELECT * FROM `pagamenti` WHERE `status` = 'accepted'
