@@ -6,3 +6,6 @@
 
 3) Seleziona tutti gli ospiti che hanno più di 20 anni (al momento dell’esecuzione della query):
 -> SELECT * FROM `ospiti` WHERE TIMESTAMPDIFF(YEAR,`date_of_birth`,CURRENT_DATE())
+
+4) Seleziona tutti gli ospiti il cui nome inizia con la D:
+SELECT * FROM `ospiti` WHERE `name` like 'D%'
