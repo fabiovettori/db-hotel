@@ -1,26 +1,81 @@
-1) Seleziona tutti gli ospiti che sono stati identificati con la carta di identità:
+1) Seleziona tutti gli ospiti che sono stati identificati con la carta di
+identità
 -> SELECT * FROM `ospiti` WHERE `document_type` = 'CI'
 
-2) Seleziona tutti gli ospiti che sono nati dopo il 1988:
--> SELECT * FROM `ospiti` WHERE `date_of_birth` >= DATE("1988-01-01")
+2) Seleziona tutti gli ospiti che sono nati dopo il 1988
+-> SELECT * FROM `ospiti` WHERE YEAR(`date_of_birth`) > 1988
 
-3) Seleziona tutti gli ospiti che hanno più di 20 anni (al momento dell’esecuzione della query):
--> SELECT * FROM `ospiti` WHERE TIMESTAMPDIFF(YEAR,`date_of_birth`,CURRENT_DATE())
+3) Seleziona tutti gli ospiti che hanno più di 20 anni (al momento dell’esecuzione della query)
+-> SELECT * FROM `ospiti` WHERE TIMESTAMPDIFF(YEAR, `date_of_birth`, CURRENT_DATE) > 20
 
-4) Seleziona tutti gli ospiti il cui nome inizia con la D:
--> SELECT * FROM `ospiti` WHERE `name` like 'D%'
+4) Seleziona tutti gli ospiti il cui nome inizia con la D
+-> SELECT * FROM `ospiti` WHERE `name` LIKE 'D%'
 
 5) Calcola il totale degli ordini accepted
-->  SELECT * FROM `pagamenti` WHERE `status` = 'accepted'
+-> SELECT SUM(`price`) AS 'sum_orders_accepted' FROM `pagamenti` WHERE `status` = 'accepted'
 
 6) Qual è il prezzo massimo pagato?
-->  SELECT MAX(`price`) FROM pagamenti
+-> SELECT MAX(`price`) AS 'max_payment_accepted' FROM `pagamenti` WHERE `status` = 'accepted'
 
 7) Seleziona gli ospiti riconosciuti con patente e nati nel 1975
-->  SELECT * FROM `ospiti` WHERE `document_type`= 'CI' AND YEAR(`date_of_birth`) = 1977
+SELECT * FROM `ospiti` WHERE `document_type` = 'Driver License' AND YEAR(`date_of_birth`) = 1975
 
 8) Quanti paganti sono anche ospiti?
--> SELECT * FROM `paganti` WHERE `ospite_id` <> 'NULL'
+->SELECT COUNT(`id`) AS 'paying_customer' FROM `paganti` WHERE `ospite_id` IS NOT NULL
 
 9) Quanti posti letto ha l’hotel in totale?
--> SELECT SUM(`beds`) FROM stanze
+-> SELECT SUM(`beds`) AS 'beds_count' FROM `stanze`
+
+ESERCIZI IN AULA
+a) Raggruppa le prenotazioni per stanza (contando quante volte è stata prenotata ciascuna stanza)
+-> SELECT `stanza_id`, COUNT(`id`) AS 'reservation_counter' FROM `prenotazioni` GROUP BY `stanza_id`
+
+b) Raggruppa le stanze per piano (contandole)
+-> SELECT `floor`, COUNT(`id`) AS 'room_counter' FROM `stanze` GROUP BY `floor`
+
+c) Importo medio pagato
+-> SELECT `status`, AVG(`price`) AS 'average-payment' FROM `pagamenti` GROUP BY `status`
+
+d) Selezionare i paganti con i relativi dati ospite
+-> SELECT * FROM `ospiti` JOIN `paganti` ON ospiti.id = paganti.ospite_id
+
+e) Selezionare tutti i pagamenti con i dati relativi alla prenotazione
+-> SELECT * FROM `pagamenti` JOIN `prenotazioni` ON prenotazioni.id = pagamenti.prenotazione_id
+
+f) Partendo dalle prenotazioni, selezionare anche i dati riguardanti la stanza associata e il tipo di configurazione
+-> SELECT * FROM `prenotazioni` JOIN `pagamenti` ON prenotazioni.id = pagamenti.prenotazione_id JOIN stanze ON stanze.id = prenotazioni.stanza_id JOIN configurazioni ON configurazioni.id = prenotazioni.configurazione_id
+
+Group by
+10) Conta gli ospiti raggruppandoli per anno di nascita
+-> SELECT YEAR(`date_of_birth`) AS 'DOB', COUNT(`id`) AS 'guests_counter' FROM `ospiti` GROUP BY YEAR(`date_of_birth`) ORDER BY YEAR(`date_of_birth`) ASC
+
+11) Somma i prezzi dei pagamenti raggruppandoli per status
+-> SELECT `status` AS 'payment_status', COUNT(`id`) AS 'payment_counter' FROM `pagamenti` GROUP BY `status`
+
+12) Conta quante volte è stata prenotata ogni stanza
+-> SELECT `room_number`, COUNT(prenotazioni.stanza_id) AS 'room_counter_reservation' FROM `stanze` JOIN `prenotazioni` ON stanze.id = prenotazioni.stanza_id GROUP BY `room_number`
+
+13) Fai una analisi per vedere se ci sono ore in cui le prenotazioni sono più frequenti
+-> SELECT EXTRACT(HOUR FROM `created_at`) AS 'hour', COUNT(`id`) AS 'reservation_counter' FROM `prenotazioni` GROUP BY EXTRACT(HOUR FROM `created_at`)
+
+14) Quante prenotazioni ha fatto l’ospite che ha fatto più prenotazioni?
+-> SELECT `ospite_id`, COUNT(`id`) AS 'reservation_counter' FROM `prenotazioni_has_ospiti` GROUP BY `ospite_id`
+
+Join
+15) Come si chiamano gli ospiti che hanno fatto più di due prenotazioni?
+-> SELECT ospiti.lastname, ospiti.name, COUNT(`ospite_id`) AS 'reserv_counter' FROM `prenotazioni` JOIN `prenotazioni_has_ospiti` ON prenotazioni.id = prenotazioni_has_ospiti.prenotazione_id JOIN `ospiti` ON prenotazioni_has_ospiti.ospite_id = ospiti.id GROUP BY ospiti.name, ospiti.lastname HAVING COUNT(`ospite_id`) > 2
+
+16) Stampare tutti gli ospiti per ogni prenotazione
+-> SELECT prenotazioni_has_ospiti.prenotazione_id, ospiti.name, ospiti.lastname FROM `prenotazioni` JOIN `prenotazioni_has_ospiti` ON prenotazioni.id = prenotazioni_has_ospiti.prenotazione_id JOIN `ospiti` ON prenotazioni_has_ospiti.ospite_id = ospiti.id GROUP BY prenotazioni_has_ospiti.prenotazione_id, ospiti.name, ospiti.lastname
+
+17) Stampare Nome, Cognome, Prezzo e Pagante per tutte le prenotazioni fatte a Maggio 2018
+->
+
+18) Fai la somma di tutti i prezzi delle prenotazioni per le stanze del primo piano
+-> SELECT stanze.floor, SUM(pagamenti.price) AS 'tot_payed_by_floor' FROM `prenotazioni` JOIN stanze ON prenotazioni.stanza_id = stanze.id JOIN pagamenti ON pagamenti.prenotazione_id = prenotazioni.id GROUP BY stanze.floor limit 1
+
+19) Prendi i dati di fatturazione per la prenotazione con id=7
+->
+
+20) Le stanze sono state tutte prenotate almeno una volta? (Visualizzare le stanze non ancora prenotate)
+->
